@@ -1,9 +1,11 @@
 html{
-    min-height:100%;/* make sure it is at least as tall as the viewport */
+    min-height:100%;
     position:relative;
 }
 body{
-    height:100%; /* force the BODY element to match the height of the HTML element */
+    height:100%;
+    color: #ecf0f1;
+    overflow: hidden;
 }
 
 .fullViewPortHeight{
@@ -29,5 +31,19 @@ body{
 }
 
 .defaultBackground{
+    background-color: #16a085;
+}
+
+.panel {
+    border: 0;
+}
+.panel-heading{
     background-color: #1abc9c;
+}
+.panel-body{
+    background-color: #1abc9c;
+}
+
+.droppable-section {
+    height:60vh;
 }

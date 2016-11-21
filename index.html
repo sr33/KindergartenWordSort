@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Kindergarten Word Sort</title>
@@ -10,8 +10,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
-          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
 
     <link href="custom.css" rel="stylesheet">
     <script src="ng_app_kindergarten_word_sort.js"></script>
@@ -26,7 +25,7 @@
             <h1>Kindergarten Word Sort</h1>
             <p>Give your game a name!</p>
             <form ng-submit="gameTitleFormSubmit()">
-                <input placeholder="EX: Match number of letters in words"
+                <input placeholder="EX: Noun, Adjective or Verb?"
                        size="100"
                        class="form-control inputCenter"
                        ng-model="gameTitle">
@@ -37,10 +36,9 @@
     <div ng-hide="!loadCreateCategoriesScreen" href="#gotoCreateCategoriesScreen" id="createCategoriesScreen"
          class="jumbotron text-center fullViewPortHeight defaultBackground">
         <div class="verticalCenter">
-            <h3>{{gameTitle}}</h3>
-            <p>Great! Let's create some categories for the game now</p>
+            <p>Great! Let's create some categories for <strong>{{gameTitle}}</strong> now</p>
             <form ng-submit="gameCategoriesFormSubmit()">
-                <input placeholder="separate Categories by space. No more than 4 please :)"
+                <input placeholder="separate categories by comma. No more than 4 categories will be considered"
                        size="100"
                        class="form-control inputCenter"
                        ng-model="gameCategoriesBlob">
@@ -50,60 +48,54 @@
     <!--step 3-->
     <div ng-hide="!loadCreateWordsScreen" href="#gotoCreateWordsScreen" id="createWordsScreen"
          class="jumbotron text-center fullViewPortHeight defaultBackground">
-        <div class="verticalCenter">
-            <span class="label label-warning" ng-repeat="gameCategory in gameCategories">
-                {{ gameCategory.title }}
-            </span>
-
-            <p>Great! Let's get some words for the game now</p>
-            <form ng-submit="gameWordsBlobSubmit()">
-                <textarea
-                        ng-model="$parent.gameWordsBlob"
-                        class="form-control"
-                        placeholder="separate words by a single space"
-                        rows="20"
-                        cols="100"></textarea>
-                <br>
-                <button type="submit" class="btn btn-primary btn-outline">
-                    Next Step
-                    <i class="fa fa-arrow-right" aria-hidden="true"></i>
-                </button>
-            </form>
+        <p>Great! Let's get some words for <strong>{{gameTitle}}</strong> now. Enter words matching each category
+            created.</p>
+        <div class="container">
+            <div class="row">
+                <form ng-submit="gameWordsBlobSubmit()">
+                    <div class="col-sm-{{12/gameCategories.length}}"
+                         ng-repeat="gameCategory in gameCategories">
+                        <div class="panel">
+                            <div class="panel-heading">
+                                <h2>{{gameCategory.title}}</h2>
+                            </div>
+                            <div class="panel-body">
+                                <textarea rows="20"
+                                          class="form-control"
+                                          placeholder="Separate words with a space"
+                                          ng-model="gameCategory.wordBlob">
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-outline">
+                        Next Step
+                        <i class="glyphicon glyphicon-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
     <!--game screen-->
     <div ng-hide="!loadGameScreen" href="#gotoGameScreen" id="gameScreen" class="fullViewPortHeight defaultBackground">
-        <div class="row">
-            <div class="col-sm-2">
-                <div class="">
-                    <div ng-repeat="gameWord in gameWords track by $index">
-                    <span class="label label-info"
-                          id="drag-{{gameWord}}"
-                          draggable="true"
-                          ondragstart="drag(event)">
-                        {{ gameWord }}
-                    </span>
+        <div class="container">
+            <div class="text-center">
+                <h1>{{gameTitle}}</h1>
+                <button class="btn btn-info" draggable="true">
+                    {{currentGameWord.text}}
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-sm-{{12/gameCategories.length}}" ng-repeat="gameCategory in gameCategories">
+                    <div class="panel">
+                        <div class="panel-heading text-center">
+                            <h2>{{ gameCategory.title }}</h2>
+                        </div>
+                        <div class="panel-body" droppable="true">
+                            <div class="droppable-section" droppable="true" data-gameCategoryTitle="{{gameCategory.title}}"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-sm-10">
-                <h1>{{gameTitle}}</h1>
-                <table class="table">
-                    <tr>
-                        <th ng-repeat="gameCategory in gameCategories">
-                            <h2>{{ gameCategory.title }}</h2>
-                        </th>
-                    </tr>
-                    <tr style="height: inherit;">
-                        <td ng-repeat="gameCategory in gameCategories">
-                            <div style="height: 500px;"
-                                 ondrop="drop(event)"
-                                 ondragover="allowDrop(event)"
-                                 class="form-control">
-                            </div>
-                        </td>
-                    </tr>
-                </table>
             </div>
         </div>
     </div>
