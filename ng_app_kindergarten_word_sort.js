@@ -3,6 +3,7 @@
  */
 
 var kindergartenWordSortApp = angular.module('kindergartenWordSortApp', []);
+var allGameWords = [];
 
 kindergartenWordSortApp.directive('draggable', function () {
     return {
@@ -48,38 +49,30 @@ kindergartenWordSortApp.controller('kindergartenWordSortController', function ($
             var texts = gameCategory.wordBlob.split(",");
             gameCategory.words = [];
             _.forEach(texts, function (text) {
-                gameCategory.words.push({
+                gameCategory.words.push({ text: text.trim() });
+                allGameWords.push({
                     text: text.trim(),
+                    gameCategory: gameCategory,
                     used: false
                 });
             })
         });
-        $scope.shuffledGameCategories = $scope.gameCategories;
         setRandomWord();
         $scope.loadGameScreen = true;
 
     };
 
     function setRandomWord() {
-        var randomIndex = getRandomInt($scope.shuffledGameCategories.length);
-        var randomGameCategory = $scope.shuffledGameCategories[randomIndex];
-        for (var w in randomGameCategory.words) {
-            var word = randomGameCategory.words[w];
-            if (word.used == false) {
-                word.categoryTitle = randomGameCategory.title;
-                word.used = true;
-                if ($scope.currentGameWord === undefined) {
-                    $scope.currentGameWord = word;
-                }
-                else {
-                    $scope.currentGameWord = word;
-                    $scope.$apply();
-                }
-                return true;
-            }
+        var randomIndex = _.random(allGameWords.length - 1);
+        var randomWord = allGameWords[randomIndex];
+        _.pullAt(allGameWords, [randomIndex]);
+        if ($scope.currentGameWord === undefined) {
+            $scope.currentGameWord = randomWord;
         }
-        $scope.shuffledGameCategories = $scope.shuffledGameCategories.splice(randomIndex, 1);
-        setRandomWord();
+        else {
+            $scope.currentGameWord = randomWord;
+            $scope.$apply();
+        }
     }
 
     $scope.handleDragStart = function (e) {
@@ -100,9 +93,8 @@ kindergartenWordSortApp.controller('kindergartenWordSortController', function ($
         e.stopPropagation();
         var gameCategoryTitle = this.getAttribute("data-gameCategoryTitle");
         // var currentGameWordText = e.dataTransfer.getData('text/plain');
-        if (isWordInCategory($scope.currentGameWord, getGameCategory(gameCategoryTitle)))
+        if ($scope.currentGameWord.gameCategory.title === getGameCategory(gameCategoryTitle).title)
         {
-            console.log("CORRECT");
             // e.target.appendChild("<button class='btn btn-success'>" + $scope.currentGameWord.text + "</button>");
             appendCurrentGameWordInTargetContainer(e.target);
             setRandomWord();
@@ -127,9 +119,8 @@ kindergartenWordSortApp.controller('kindergartenWordSortController', function ($
     }
 
     function appendCurrentGameWordInTargetContainer(target){
-        var childElement = document.createElement('button');
-        childElement.className = "btn btn-success";
-        childElement.innerHTML = $scope.currentGameWord.text;
+        var childElement = document.createElement('strong');
+        childElement.innerHTML = $scope.currentGameWord.text + ", ";
         target.appendChild(childElement);
     }
 });
